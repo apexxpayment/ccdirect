@@ -1,0 +1,89 @@
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="payment">
+            <group id="apexx_section">
+                <group id="apexxpayment">
+                    <group id="ccdirect_gateway" translate="label" type="text" sortOrder="12"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Credit Card Direct</label>
+                        <field id="active" translate="label" type="select" sortOrder="1" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                            <label>Enabled</label>
+                            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                            <config_path>payment/ccdirect_gateway/active</config_path>
+                        </field>
+                        <field id="title" translate="label" type="text" sortOrder="1" showInDefault="1"
+                               showInWebsite="1" showInStore="1">
+                            <label>Title</label>
+                            <config_path>payment/ccdirect_gateway/title</config_path>
+                        </field>
+                        <field id="ccdirect_cc_vault_active" translate="label" type="select" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>Vault Enabled</label>
+                            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                            <config_path>payment/ccdirect_cc_vault/active</config_path>
+                        </field>
+                        <field id="ccdirect_cc_vault_title" translate="label" type="text" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Vault Title</label>
+                            <config_path>payment/ccdirect_cc_vault/title</config_path>
+                        </field>
+                        <field id="cctypes" translate="label" type="multiselect" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>Credit Card Types</label>
+                            <source_model>Magento\Payment\Model\Source\Cctype</source_model>
+                            <config_path>payment/ccdirect_gateway/cctypes</config_path>
+                        </field>
+                        <field id="payment_modes" translate="label" type="select" sortOrder="7"
+                       showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>Payment Modes</label>
+                            <source_model>Apexx\CcDirect\Model\Adminhtml\Source\PaymentMode</source_model>
+                        </field>
+                        <field id="payment_action" translate="label" type="select" sortOrder="8"
+                               showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>Payment Action</label>
+                            <source_model>Apexx\CcDirect\Model\Adminhtml\Source\PaymentAction</source_model>
+                            <config_path>payment/ccdirect_gateway/payment_action</config_path>
+                        </field>
+                         <field id="allow" translate="label" type="multiselect" sortOrder="8" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Allowed Currencies</label>
+                            <source_model>Magento\Config\Model\Config\Source\Locale\Currency</source_model>
+                            <backend_model>Magento\Config\Model\Config\Backend\Currency\Allow</backend_model>
+                        </field>
+                         <field id="create_token" translate="label" type="select" sortOrder="9"
+                               showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>Create Token</label>
+                            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        </field>
+                        <field id="dynamic_descriptor" translate="label" type="text" sortOrder="9"
+                               showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>Dynamic Descriptor</label>
+                        </field>
+                        <field id="three_d_status" translate="label" type="select" sortOrder="10"
+                               showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>3DS Preference</label>
+                            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        </field>
+                         <field id="recurring_type" translate="label" type="select" sortOrder="11"
+                               showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>Recurring Type</label>
+                            <source_model>Apexx\CcDirect\Model\Adminhtml\Source\RecurringType</source_model>
+                        </field>
+                         <field id="webhook_transaction_update" translate="label" type="text" sortOrder="16"
+                               showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>Webhook Transaction Update</label>
+                        </field>
+                        
+                        <field id="duplicate_check" translate="label" type="select" sortOrder="26"
+                               showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>Duplicate Check</label>
+                            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        </field>
+                        <field id="sort_order" translate="label" type="text" sortOrder="28" showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>Sort Order</label>
+                            <frontend_class>validate-number</frontend_class>
+                            <config_path>payment/ccdirect_gateway/sort_order</config_path>
+                        </field>
+                    </group>
+                </group>
+            </group>
+        </section>
+    </system>
+</config>

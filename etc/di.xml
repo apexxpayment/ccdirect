@@ -1,0 +1,272 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <preference for="Apexx\CcDirect\Api\ApexxOrderPaymentStatusInterface"
+                type="Apexx\CcDirect\Model\ApexxOrderPaymentStatus"/>
+
+   <preference for="Apexx\CcDirect\Api\WebhookDataInterface" type="Apexx\CcDirect\Model\WebhookData" />
+
+    <!-- Payment Method Facade configuration -->
+    <virtualType name="CcDirectFacade" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="code" xsi:type="const">
+                \Apexx\CcDirect\Model\Ui\ConfigProvider::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Apexx\CcDirect\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">CcDirectValueHandlerPool</argument>
+            <argument name="commandPool" xsi:type="object">CcDirectCommandPool</argument>
+        </arguments>
+    </virtualType>
+
+     <!-- Vault Method Facade configuration -->
+    <virtualType name="CcdirectCreditCardVaultFacade" type="Magento\Vault\Model\Method\Vault">
+        <arguments>
+            <argument name="code" xsi:type="const">Apexx\CcDirect\Model\Ui\ConfigProvider::CC_VAULT_CODE</argument>
+            <argument name="config" xsi:type="object">CcDirectVaultPaymentConfig</argument>
+            <argument name="valueHandlerPool" xsi:type="object">CcDirectVaultPaymentValueHandlerPool</argument>
+            <!--<argument name="valueHandlerPool" xsi:type="object">CcDirectValueHandlerPool</argument>-->
+            <argument name="vaultProvider" xsi:type="object">CcDirectFacade</argument>
+            <argument name="commandManagerPool" xsi:type="object">CcDirectCcVaultCommandManagerPool</argument>
+        </arguments>
+    </virtualType>
+     <virtualType name="CcDirectVaultPaymentConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">Apexx\CcDirect\Model\Ui\ConfigProvider::CC_VAULT_CODE</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="CcDirectVaultPaymentValueHandler" type="VaultPaymentDefaultValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">CcDirectVaultPaymentConfig</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="CcDirectVaultPaymentValueHandlerPool" type="VaultPaymentValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">CcDirectVaultPaymentValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="CcDirectCcVaultCommandManagerPool" type="Magento\Payment\Gateway\Command\CommandManagerPool">
+        <arguments>
+            <argument name="executors" xsi:type="array">
+                <item name="ccdirect_gateway" xsi:type="string">CcDirectCommandManager</item>
+            </argument>
+        </arguments>
+    </virtualType>
+     <virtualType name="CcDirectCommandManager" type="Magento\Payment\Gateway\Command\CommandManager">
+        <arguments>
+            <argument name="commandPool" xsi:type="object">CcDirectCommandPool</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Configuration reader -->
+    <virtualType name="CcDirectConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode"
+                      xsi:type="const">\Apexx\CcDirect\Model\Ui\ConfigProvider::CODE
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Logger, initialized with CcDirectConfig -->
+    <virtualType name="CcDirectLogger" type="Magento\Payment\Model\Method\Logger">
+        <arguments>
+            <argument name="config" xsi:type="object">CcDirectConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Apexx\CcDirect\Gateway\Http\Client\AuthorizeMock">
+        <arguments>
+            <argument name="logger" xsi:type="object">CcDirectLogger</argument>
+        </arguments>
+    </type>
+
+    <!-- Commands infrastructure -->
+    <virtualType name="CcDirectCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="authorize" xsi:type="string">CcDirectAuthorizeCommand</item>
+                 <item name="vault_authorize" xsi:type="string">CcDirectVaultAuthorizeCommand</item>
+                <item name="capture" xsi:type="string">CcDirectCaptureCommand</item>
+                <item name="vault_sale" xsi:type="string">CcDirectVaultSaleCommand</item>
+                <item name="void" xsi:type="string">CcDirectVoidCommand</item>
+                <item name="refund" xsi:type="string">CcDirectRefundCommand</item>
+                <item name="cancel" xsi:type="string">Apexx\CcDirect\Gateway\CancelCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+        <!-- Vault Authorize command -->
+    <virtualType name="CcDirectVaultAuthorizeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">CcDirectVaultAuthorizationRequest</argument>
+            <argument name="handler" xsi:type="object">CcDirectResponseHandlerComposite</argument>
+            <argument name="transferFactory" xsi:type="object">Apexx\CcDirect\Gateway\Http\TransferFactory</argument>
+            <argument name="validator" xsi:type="object">Apexx\CcDirect\Gateway\Validator\AuthorizeResponseValidator</argument>
+            <argument name="client" xsi:type="object">Apexx\CcDirect\Gateway\Http\Client\AuthorizeMock</argument>
+        </arguments>
+    </virtualType>
+
+    <!--Vault Authorization Request -->
+    <virtualType name="CcDirectVaultAuthorizationRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">Apexx\CcDirect\Gateway\Request\VaultAuthorizeRequest</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Vault Sale command -->
+    <virtualType name="CcDirectVaultSaleCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">CcDirectVaultSaleRequest</argument>
+            <argument name="handler" xsi:type="object">CcDirectCaptureResponseHandlerComposite</argument>
+            <argument name="transferFactory" xsi:type="object">Apexx\CcDirect\Gateway\Http\TransferFactory</argument>
+            <argument name="validator" xsi:type="object">Apexx\CcDirect\Gateway\Validator\ResponseCaptureValidator</argument>
+            <argument name="client" xsi:type="object">Apexx\CcDirect\Gateway\Http\Client\CaptureMock</argument>
+        </arguments>
+    </virtualType>
+
+    <!--Vault Sale Request -->
+    <virtualType name="CcDirectVaultSaleRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">Apexx\CcDirect\Gateway\Request\VaultSaleRequest</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Authorize command -->
+    <virtualType name="CcDirectAuthorizeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">CcDirectAuthorizationRequest</argument>
+            <argument name="handler" xsi:type="object">CcDirectResponseHandlerComposite</argument>
+            <argument name="transferFactory"
+                      xsi:type="object">Apexx\CcDirect\Gateway\Http\TransferFactory</argument>
+            <argument name="validator"
+                      xsi:type="object">Apexx\CcDirect\Gateway\Validator\AuthorizeResponseValidator</argument>
+            <argument name="client" xsi:type="object">Apexx\CcDirect\Gateway\Http\Client\AuthorizeMock</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Authorization Request -->
+    <virtualType name="CcDirectAuthorizationRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction"
+                      xsi:type="string">Apexx\CcDirect\Gateway\Request\AuthorizationRequest</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="Apexx\CcDirect\Gateway\Request\AuthorizationRequest">
+        <arguments>
+            <argument name="config" xsi:type="object">CcDirectConfig</argument>
+        </arguments>
+    </type>
+
+    <!-- Capture command -->
+    <virtualType name="CcDirectCaptureCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder"
+                      xsi:type="object">Apexx\CcDirect\Gateway\Request\CaptureRequest</argument>
+            <argument name="handler" xsi:type="object">CcDirectCaptureResponseHandlerComposite</argument>
+            <argument name="transferFactory"
+                      xsi:type="object">Apexx\CcDirect\Gateway\Http\TransferFactory</argument>
+            <argument name="validator"
+                      xsi:type="object">Apexx\CcDirect\Gateway\Validator\ResponseCaptureValidator</argument>
+            <argument name="client" xsi:type="object">Apexx\CcDirect\Gateway\Http\Client\CaptureMock</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Capture Request -->
+    <type name="Apexx\CcDirect\Gateway\Request\CaptureRequest">
+        <arguments>
+            <argument name="config" xsi:type="object">CcDirectConfig</argument>
+        </arguments>
+    </type>
+
+    <!-- Void command -->
+    <virtualType name="CcDirectVoidCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder"
+                      xsi:type="object">Apexx\CcDirect\Gateway\Request\VoidRequest</argument>
+            <argument name="handler" xsi:type="object">Apexx\CcDirect\Gateway\Response\VoidHandler
+            </argument>
+            <argument name="transferFactory"
+                      xsi:type="object">Apexx\CcDirect\Gateway\Http\TransferFactory</argument>
+            <argument name="validator"
+                      xsi:type="object">Apexx\CcDirect\Gateway\Validator\CancelResponseValidator</argument>
+            <argument name="client" xsi:type="object">Apexx\CcDirect\Gateway\Http\Client\VoidMock
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Void Request -->
+    <type name="Apexx\CcDirect\Gateway\Request\VoidRequest">
+        <arguments>
+            <argument name="config" xsi:type="object">CcDirectConfig</argument>
+        </arguments>
+    </type>
+
+     <!-- Cancel Command -->
+    <virtualType name="Apexx\CcDirect\Gateway\CancelCommand" type="CcDirectVoidCommand">
+        <arguments>
+            <argument name="handler" xsi:type="object">Apexx\CcDirect\Gateway\Response\CancelDetailsHandler</argument>
+        <argument name="validator" xsi:type="object">Apexx\CcDirect\Gateway\Validator\CancelResponseValidator</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Cancel Command -->
+
+    <virtualType name="CcDirectRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="client" xsi:type="object">Apexx\CcDirect\Gateway\Http\Client\RefundMock</argument>
+            <argument name="requestBuilder" xsi:type="object">Apexx\CcDirect\Gateway\Request\RefundRequest</argument>
+            <argument name="validator" xsi:type="object">Apexx\CcDirect\Gateway\Validator\RefundResponseValidator</argument>
+            <argument name="handler" xsi:type="object">Apexx\CcDirect\Gateway\Response\RefundHandler</argument>
+            <argument name="transferFactory" xsi:type="object">Apexx\CcDirect\Gateway\Http\TransferFactory</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Response handlers -->
+    <virtualType name="CcDirectResponseHandlerComposite" type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="txnid" xsi:type="string">Apexx\CcDirect\Gateway\Response\TxnIdHandler</item>
+                 <item name="vault" xsi:type="string">Apexx\CcDirect\Gateway\Response\VaultHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Response handlers -->
+    <virtualType name="CcDirectCaptureResponseHandlerComposite" type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="txnid" xsi:type="string">Apexx\CcDirect\Gateway\Response\CaptureHandler</item>
+                 <item name="vault" xsi:type="string">Apexx\CcDirect\Gateway\Response\VaultHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Value handlers infrastructure -->
+    <virtualType name="CcDirectValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">CcDirectConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="CcDirectConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">CcDirectConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Apexx\CcDirect\Block\Info">
+        <arguments>
+            <argument name="config" xsi:type="object">CcDirectConfig</argument>
+        </arguments>
+    </type>
+    <type name="Magento\Payment\Model\Method\Adapter">
+    <plugin name="apexx_ccdirect_payment_action"
+            type="Apexx\CcDirect\Plugin\Method\ApexxAdapter" sortOrder="20"/>
+    </type>
+</config>

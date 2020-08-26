@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <payment>
+            <ccdirect_gateway>
+                <active>1</active>
+                <model>CcDirectFacade</model>
+                <title>Apexx CCDirect Payment</title>
+                <allowspecific>0</allowspecific>
+                <sort_order>1</sort_order>
+                <cctypes>AE,VI,MC,DI</cctypes>
+                <useccv>1</useccv>
+                <payment_action>authorize</payment_action>
+                <is_gateway>1</is_gateway>
+                <can_use_checkout>1</can_use_checkout>
+                <can_authorize>1</can_authorize>
+                <can_authorize_3d>1</can_authorize_3d>
+                <can_capture>1</can_capture>
+                <can_capture_partial>1</can_capture_partial>
+                <can_use_internal>1</can_use_internal>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_refund>1</can_refund>
+                <can_void>1</can_void>
+                <can_cancel>1</can_cancel>
+                <can_authorize_vault>1</can_authorize_vault>
+                <can_capture_vault>1</can_capture_vault>
+                <cctypes_ccdirect_mapper><![CDATA[{"Amex":"AE","Visa":"VI","MasterCard":"MC","Discover":"DI","JCB":"JCB","CUP":"CUP","Diners":"DN","MI":"MI"}]]></cctypes_ccdirect_mapper>
+                 <paymentInfoKeys>card_number,expiry_month,expiry_year,status,amount,authorization_code</paymentInfoKeys>
+            </ccdirect_gateway>
+            <ccdirect_cc_vault>
+                <model>CcdirectCreditCardVaultFacade</model>
+                <title>Stored Cards</title>
+                <can_use_internal>1</can_use_internal>
+            </ccdirect_cc_vault>
+        </payment>
+    </default>
+</config>

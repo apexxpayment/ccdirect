@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+    <route url="/V1/apexx/orders/:orderId/payment-status" method="GET">
+        <service class="Apexx\CcDirect\Api\ApexxOrderPaymentStatusInterface" method="getOrderPaymentStatus"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+    <!-- Webhook URL -->
+   <route  url="/V1/ccdirect/webhookdata" method="POST">
+        <service class="Apexx\CcDirect\Api\WebhookDataInterface" method="webhookData"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+</routes>
