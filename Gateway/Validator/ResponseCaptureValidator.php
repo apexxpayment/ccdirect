@@ -28,6 +28,25 @@ class ResponseCaptureValidator extends AbstractValidator
         $payment = $paymentDataObjectInterface->getPayment();
         $payment->setAdditionalInformation('3dActive', false);
         $response = $validationSubject['response'];
+        if(isset($response['card']['card_number'])){
+            $payment->setCcNumberEnc($response['card']['card_number']);
+            $last4 = substr($response['card']['card_number'], -4);
+            $payment->setCcLast4($last4);
+            $firstSix = substr($response['card']['card_number'],0,6);
+            $payment->setBin($firstSix);
+        }
+        if(isset($response['card']['expiry_month'])){
+            $payment->setCcExpMonth($response['card']['expiry_month']);
+        }
+        if(isset($response['card']['expiry_year'])){
+            $payment->setCcExpYear($response['card']['expiry_year']);
+        }
+        if(isset($response['cvv_result'])){
+            $payment->setCvvResponse($response['cvv_result']);
+        }
+        if(isset($response['avs_result'])){
+            $payment->setAvsResponse($response['avs_result']);
+        }
         if (isset($response['status']))
         {
                 if ($response['status'] == 'CAPTURED') {

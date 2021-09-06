@@ -25,7 +25,7 @@
                 <can_authorize_vault>1</can_authorize_vault>
                 <can_capture_vault>1</can_capture_vault>
                 <cctypes_ccdirect_mapper><![CDATA[{"Amex":"AE","Visa":"VI","MasterCard":"MC","Discover":"DI","JCB":"JCB","CUP":"CUP","Diners":"DN","MI":"MI"}]]></cctypes_ccdirect_mapper>
-                 <paymentInfoKeys>card_number,expiry_month,expiry_year,status,amount,authorization_code</paymentInfoKeys>
+                 <paymentInfoKeys>CardNumber,expiry_month,expiry_year,status,amount,authorization_code</paymentInfoKeys>
             </ccdirect_gateway>
             <ccdirect_cc_vault>
                 <model>CcdirectCreditCardVaultFacade</model>

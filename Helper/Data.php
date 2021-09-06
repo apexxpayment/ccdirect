@@ -21,6 +21,7 @@ use Magento\Sales\Api\TransactionRepositoryInterface;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\FilterBuilder;
 use \Psr\Log\LoggerInterface;
+use Magento\Sales\Api\Data\OrderInterface;
 
 /**
  * Class Data
@@ -42,6 +43,7 @@ class Data extends AbstractHelper
     const XML_PATH_RECURRING_TYPE     = '/recurring_type';
     const XML_PATH_CREATE_TOKEN        = '/create_token'; 
     const XML_PATH_ALLOW_CURRENCY = '/allow' ;
+    const XML_PATH_PAYMENT = 'payment/';
     /**
      * @var ScopeConfigInterface
      */
@@ -266,5 +268,21 @@ class Data extends AbstractHelper
                 return $currencyInfo;
             }
         }
+    }
+
+    /**
+     * @param OrderInterface $order
+     * @return mixed
+     */
+    public function getPaymentCatpureMode(OrderInterface $order)
+    {
+        $payment = $order->getPayment();
+        $method = $payment->getMethod();
+
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_PAYMENT . $method . self::XML_PATH_PAYMENT_ACTION,
+            ScopeInterface::SCOPE_STORE,
+            $order->getStoreId()
+        );
     }
 }
