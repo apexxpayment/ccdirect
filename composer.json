@@ -2,7 +2,7 @@
     "name": "apexxpayment/ccdirect",
     "description": "CcDirect custom payment method in Magento 2",
     "require": {
-       "apexxpayment/base": "1.0.0"
+       "apexxpayment/base": "1.0.1"
     },
     "minimum-stability": "stable",
     "prefer-stable" : true,
