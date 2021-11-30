@@ -32,10 +32,15 @@ class WebhookData implements \Apexx\CcDirect\Api\WebhookDataInterface
         $response = $this
             ->request
             ->getBodyParams();
-
         if (isset($response['merchant_reference']))
         {
-            $str = $response['merchant_reference'];
+            $paymentStr = $this->apexxBaseHelper->encryptDecrypt(2, $response['merchant_reference']);
+            $paymentMatch = strpos($paymentStr, 'hosted');
+            if($paymentMatch === false){
+                $str = $response['merchant_reference'];
+            }else{
+                $str = str_replace('hosted',"",$paymentStr);
+            }
             $orderIncrementId = ltrim($str, $this->apexxBaseHelper->getStoreCode());
             $order = $this
                 ->orderFactory
@@ -49,7 +54,7 @@ class WebhookData implements \Apexx\CcDirect\Api\WebhookDataInterface
                 {
                     $payment->setAdditionalInformation('reason_code', $response['reason_code']);
                     if ($response['_id']) $payment->setAdditionalInformation('_id', $response['_id']);
-                    if (isset($response['authorization_code']) && $response['authorization_code']) $payment->setAdditionalInformation('authorization_code', $response['authorization_code']);
+                    if ($response['authorization_code']) $payment->setAdditionalInformation('authorization_code', $response['authorization_code']);
                     if ($response['merchant_reference']) $payment->setAdditionalInformation('merchant_reference', $response['merchant_reference']);
                     if ($response['amount']) $payment->setAdditionalInformation('amount', ($response['amount'] / 100));
                     if ($response['status']) $payment->setAdditionalInformation('status', $response['status']);
@@ -75,20 +80,8 @@ class WebhookData implements \Apexx\CcDirect\Api\WebhookDataInterface
                         $payment->setAvsResponse($response['avs_result']);
                     }
                     $payment->setAmount(($response['amount'] / 100));
-                    if (isset($response['authorization_code']) && $response['authorization_code']){
-                        $payment->setCcApproval($response['authorization_code']);
-                    }
-                    $payment->setLastTransId($response['_id']);
-                    $payment->setTransactionId($response['_id']);
-                    $payment->setIsTransactionClosed(0);
-                    $payment->setCcTransId($response['_id']);
-                    
-                    if(isset($response['avs_result'])){
-                        $payment->setCcAvsStatus($response['avs_result']);
-                    }
-                    if(isset($response['cvv_result'])){
-                        $payment->setCcCidStatus($response['cvv_result']);
-                    }
+                    $payment->setCcApproval($response['authorization_code'])->setLastTransId($response['_id'])->setTransactionId($response['_id'])->setIsTransactionClosed(0)
+                        ->setCcTransId($response['_id'])->setCcAvsStatus($response['avs_result'])->setCcCidStatus($response['cvv_result']);
 
                     $payment->setParentTransactionId('_id')
                         ->setIsTransactionClosed(0);
@@ -170,4 +163,3 @@ class WebhookData implements \Apexx\CcDirect\Api\WebhookDataInterface
         }
     }
 }
-
