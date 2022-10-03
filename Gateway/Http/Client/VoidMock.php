@@ -58,9 +58,14 @@ class VoidMock implements ClientInterface
     public function placeRequest(TransferInterface $transferObject)
     {
         $request = $transferObject->getBody();
-        // Set capture url
-        $url = $this->apexxBaseHelper->getApiEndpoint().$request['transaction_id'].'/cancel';
 
+        $apiType = $this->apexxBaseHelper->getApiType();
+        if ($apiType == 'Atomic') {
+            $url = $this->apexxBaseHelper->getApiEndpoint().'cancel/payment/'.$request['transaction_id'];
+        } else {
+            // Set cancel url
+            $url = $this->apexxBaseHelper->getApiEndpoint().$request['transaction_id'].'/cancel';
+        }
         unset($request['transaction_id']);
         //Set parameters for curl
         $resultCode = json_encode($request);
